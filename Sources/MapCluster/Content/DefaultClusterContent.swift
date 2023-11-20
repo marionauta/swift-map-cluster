@@ -1,7 +1,7 @@
 import MapKit
 import SwiftUI
 
-@available(iOS 17.0, *)
+@available(iOS 17.0, macOS 14.0, *)
 public struct DefaultClusterContent<Single: MapSingle>: MapContent {
     private let cluster: MapCluster<Single>
 
@@ -18,7 +18,7 @@ public struct DefaultClusterContent<Single: MapSingle>: MapContent {
     }
 }
 
-@available(iOS 15.0, *)
+@available(iOS 15.0, macOS 12.0, *)
 public struct DefaultClusterView: View {
     private let count: Int
 

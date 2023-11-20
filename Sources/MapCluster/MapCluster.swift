@@ -12,7 +12,7 @@ public struct MapCluster<Single: MapSingle>: Equatable, Identifiable, WithCoordi
     }
 
     public var coordinate: CLLocationCoordinate2D {
-        return centerpoint(of: singles.map(\.coordinate)) ?? .init()
+        return singles.map(\.coordinate).centerpoint() ?? .init()
     }
 }
 
@@ -35,19 +35,36 @@ public extension MapCluster {
         }
         return markers
     }
+
+    static func clusterize(_ singles: [Single], markerSize: Double, bounds: MKMapRect) -> [MapMarker<Single>] {
+        #if canImport(UIKit)
+        guard let windowBounds = UIApplication.shared.keyWindow?.bounds ?? UIApplication.shared.screen?.bounds else {
+            return singles.map { .single($0) }
+        }
+        #else
+        guard let windowBounds = NSApplication.shared.keyWindow?.frame else {
+            return singles.map { .single($0) }
+        }
+        #endif
+        let splits = windowBounds.width / markerSize
+        let proximity = bounds.northEast.distance(to: bounds.northWest) / splits
+        return clusterize(singles, proximity: proximity * 1.2, bounds: bounds)
+    }
 }
 
-private func centerpoint(of locations: [CLLocationCoordinate2D]) -> CLLocationCoordinate2D? {
-    guard !locations.isEmpty else { return nil }
-    var minLat = 90.0
-    var maxLat = -90.0
-    var minLon = 180.0
-    var maxLon = -180.0
-    for location in locations {
-        if location.latitude  < minLat { minLat = location.latitude }
-        if location.latitude  > maxLat { maxLat = location.latitude }
-        if location.longitude < minLon { minLon = location.longitude }
-        if location.longitude > maxLon { maxLon = location.longitude }
+private extension Array where Element == CLLocationCoordinate2D {
+    func centerpoint() -> CLLocationCoordinate2D? {
+        guard !isEmpty else { return nil }
+        var minLat = 90.0
+        var maxLat = -90.0
+        var minLon = 180.0
+        var maxLon = -180.0
+        for location in self {
+            if location.latitude  < minLat { minLat = location.latitude }
+            if location.latitude  > maxLat { maxLat = location.latitude }
+            if location.longitude < minLon { minLon = location.longitude }
+            if location.longitude > maxLon { maxLon = location.longitude }
+        }
+        return CLLocationCoordinate2D(latitude: (minLat + maxLat) / 2, longitude: (minLon + maxLon) / 2)
     }
-    return CLLocationCoordinate2D(latitude: (minLat + maxLat) / 2, longitude: (minLon + maxLon) / 2)
 }
