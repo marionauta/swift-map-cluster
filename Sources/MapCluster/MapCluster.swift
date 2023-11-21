@@ -17,7 +17,7 @@ public struct MapCluster<Single: MapSingle>: Equatable, Identifiable, WithCoordi
 }
 
 public extension MapCluster {
-    static func clusterize(_ singles: [Single], proximity: Double, bounds: MKMapRect?) -> [MapMarker<Single>] {
+    static func clusterize(_ singles: any Collection<Single>, proximity: Double, bounds: MKMapRect?) -> [MapMarker<Single>] {
         var markers: [MapMarker<Single>] = []
         singlesLoop: for newSingle in singles {
             if let bounds, !bounds.contains(MKMapPoint(newSingle.coordinate)) { continue }
@@ -36,7 +36,7 @@ public extension MapCluster {
         return markers
     }
 
-    static func clusterize(_ singles: [Single], markerSize: Double, bounds: MKMapRect) -> [MapMarker<Single>] {
+    static func clusterize(_ singles: any Collection<Single>, markerSize: Double, bounds: MKMapRect) -> [MapMarker<Single>] {
         #if canImport(UIKit)
         guard let windowBounds = UIApplication.shared.keyWindow?.bounds ?? UIApplication.shared.screen?.bounds else {
             return singles.map { .single($0) }

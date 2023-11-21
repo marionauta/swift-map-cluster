@@ -3,17 +3,20 @@ import MapKit
 import SwiftUI
 
 @available(iOS 17.0, macOS 14.0, *)
-public struct MapClusterContent<Single: MapSingle, SingleContent: MapContent, ClusterContent: MapContent>: MapContent {
+public struct MapClusterContent<Data, ID, SingleContent: MapContent, ClusterContent: MapContent>: MapContent where Data: RandomAccessCollection, Data.Element: MapSingle, ID == Data.Element.ID {
+    public typealias Single = Data.Element
+    public typealias Cluster = MapCluster<Single>
+
     private let markers: [MapMarker<Single>]
     private let markerContent: (Single) -> SingleContent
-    private let markerClusterContent: (MapCluster<Single>) -> ClusterContent
+    private let markerClusterContent: (Cluster) -> ClusterContent
 
     public init(
-        _ items: [Single],
+        _ items: Data,
         mapBounds: MKMapRect?,
         markerSize: Double = 30,
         @MapContentBuilder markerContent: @escaping (Single) -> SingleContent,
-        @MapContentBuilder markerClusterContent: @escaping (MapCluster<Single>) -> ClusterContent
+        @MapContentBuilder markerClusterContent: @escaping (Cluster) -> ClusterContent
     ) {
         self.markerContent = markerContent
         self.markerClusterContent = markerClusterContent
@@ -39,7 +42,7 @@ public struct MapClusterContent<Single: MapSingle, SingleContent: MapContent, Cl
 @available(iOS 17.0, macOS 14.0, *)
 public extension MapClusterContent where ClusterContent == DefaultClusterContent<Single> {
     init(
-        _ items: [Single],
+        _ items: Data,
         mapBounds: MKMapRect?,
         markerSize: Double = 30,
         @MapContentBuilder markerContent: @escaping (Single) -> SingleContent
