@@ -15,6 +15,8 @@ public struct DefaultClusterContent<Single: MapSingle>: MapContent {
         } label: {
             EmptyView()
         }
+        .annotationTitles(.hidden)
+        .annotationSubtitles(.hidden)
     }
 }
 
