@@ -2,12 +2,14 @@ import CoreLocation
 import Foundation
 import MapKit
 
-public struct MapCluster<Single: MapSingle>: Equatable, Identifiable, WithCoordinate {
+public struct MapCluster<Single: MapSingle>: MapSingle {
     public let id: Single.ID
+    public let clusteringGroup: Single.ClusteringGroup?
     public var singles: [Single]
 
-    public init(id: Single.ID, singles: [Single]) {
+    public init(id: Single.ID, group: ClusteringGroup?, singles: [Single]) {
         self.id = id
+        self.clusteringGroup = group
         self.singles = singles
     }
 
@@ -24,7 +26,7 @@ public extension MapCluster {
             for index in 0..<markers.count {
                 let marker = markers[index]
 
-                if newSingle.distance(to: marker) < proximity {
+                if newSingle.distance(to: marker) < proximity && newSingle.clusteringGroup == marker.clusteringGroup {
                     let cluster = marker.joining(other: newSingle)
                     markers.remove(at: index)
                     markers.insert(cluster, at: index)
